@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Online</title>
+  <style>
+    :root {
+      --color-online-bg: #f5f4f0;
+      --color-online-panel: #ffffff;
+      --color-online-panel-2: #f3f4f6;
+      --color-online-border: #dfe4eb;
+      --color-online-shadow: rgba(12, 18, 27, 0.10);
+      --color-online-text: #1d2736;
+      --color-online-softtext: #5f6d7a;
+      --color-online-accent: #2a7de1;
+      --color-online-accent-soft: rgba(42, 125, 225, 0.10);
+      --color-online-row: #eef3fb;
+      --color-online-warning: #f7f1db;
+    }
+
+    .color-online-popup {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 99999;
+      background: rgba(16, 20, 28, 0.18);
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      backdrop-filter: blur(1px);
+    }
+
+    .color-online-popup.visible {
+      display: flex;
+    }
+
+    .color-online-app {
+      position: relative;
+      width: min(96vw, 1460px);
+      height: min(94vh, 940px);
+      background: var(--color-online-bg);
+      border: 1px solid var(--color-online-border);
+      border-radius: 18px;
+      box-shadow: 0 24px 52px var(--color-online-shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      color: var(--color-online-text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .color-online-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.7);
+      border-bottom: 1px solid var(--color-online-border);
+      backdrop-filter: blur(8px);
+      flex-wrap: wrap;
+    }
+
+    .color-online-topbar-left,
+    .color-online-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .color-online-btn {
+      appearance: none;
+      background: var(--color-online-panel);
+      border: 1px solid var(--color-online-border);
+      border-radius: 10px;
+      color: var(--color-online-text);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+      user-select: none;
+    }
+
+    .color-online-btn:hover {
+      transform: translateY(-1px);
+      border-color: #c7d2df;
+    }
+
+    .color-online-btn:active {
+      transform: translateY(0);
+    }
+
+    .color-online-btn.primary {
+      background: var(--color-online-accent);
+      color: #fff;
+      border-color: var(--color-online-accent);
+    }
+
+    .color-online-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 0;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .color-online-workspace {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      background: linear-gradient(180deg, #f7f8fb 0%, #eef2f7 100%);
+      border-right: 1px solid var(--color-online-border);
+      overflow: hidden;
+    }
+
+    .color-online-canvas-shell {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .color-online-canvas {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid var(--color-online-border);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.015);
+      cursor: crosshair;
+      touch-action: none;
+      display: block;
+    }
+
+    .color-online-sidebar {
+      background: rgba(255, 255, 255, 0.86);
+      padding: 18px 14px 16px;
+      overflow-y: auto;
+      position: relative;
+      border-left: 1px solid var(--color-online-border);
+      min-height: 0;
+    }
+
+    .color-online-side-block {
+      padding: 0 0 18px;
+      margin: 0 0 16px;
+      border-bottom: 1px solid var(--color-online-border);
+    }
+
+    .color-online-side-block:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .color-online-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-online-softtext);
+      margin-bottom: 10px;
+    }
+
+    .color-online-tool-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .color-online-tool-btn {
+      appearance: none;
+      background: var(--color-online-panel-2);
+      border: 1px solid var(--color-online-border);
+      border-radius: 10px;
+      padding: 10px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--color-online-text);
+      transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+      text-align: center;
+    }
+
+    .color-online-tool-btn.active {
+      background: var(--color-online-accent-soft);
+      border-color: rgba(42, 125, 225, 0.45);
+      box-shadow: inset 0 0 0 1px rgba(42,125,225,0.08);
+    }
+
+    .color-online-palette {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .color-online-swatch {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 8px;
+      border: 2px solid rgba(0,0,0,0.08);
+      cursor: pointer;
+      position: relative;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.32);
+      transition: transform 0.12s ease, border-color 0.12s ease;
+    }
+
+    .color-online-swatch:hover {
+      transform: translateY(-1px);
+    }
+
+    .color-online-swatch.active {
+      border-color: rgba(0,0,0,0.7);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.12);
+    }
+
+    .color-online-custom-pick {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .color-online-custom-pick input[type="color"] {
+      width: 52px;
+      height: 38px;
+      border: 1px solid var(--color-online-border);
+      border-radius: 10px;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .color-online-gradient-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .color-online-gradient-btn {
+      appearance: none;
+      flex: 1 1 0;
+      border: 1px solid var(--color-online-border);
+      border-radius: 10px;
+      background: var(--color-online-panel);
+      color: var(--color-online-text);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 9px 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+
+    .color-online-gradient-btn.active {
+      background: var(--color-online-row);
+      border-color: rgba(42, 125, 225, 0.30);
+    }
+
+    .color-online-size-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .color-online-size-wrap input[type="range"] {
+      width: 100%;
+      accent-color: var(--color-online-accent);
+    }
+
+    .color-online-size-value {
+      min-width: 40px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--color-online-softtext);
+    }
+
+    .color-online-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 2;
+    }
+
+    @media (max-width: 980px) {
+      .color-online-app {
+        width: min(96vw, 1180px);
+        height: min(95vh, 960px);
+      }
+
+      .color-online-main {
+        grid-template-columns: 1fr;
+      }
+
+      .color-online-workspace {
+        min-height: 58vh;
+        border-right: none;
+        border-bottom: 1px solid var(--color-online-border);
+      }
+
+      .color-online-sidebar {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-left: none;
+        border-top: 1px solid var(--color-online-border);
+        background: rgba(255,255,255,0.96);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .color-online-topbar {
+        padding: 10px 10px;
+      }
+
+      .color-online-btn {
+        padding: 8px 9px;
+        font-size: 12px;
+      }
+
+      .color-online-canvas-shell {
+        padding: 10px;
+      }
+
+      .color-online-palette {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="https://coloringfiles.com/uploads/images/202609/image_1200x_95916cfdc924f7804880f19844a74e97.webp" id="coloronline" style="display:inline-block; padding:12px 18px; background:#fff; border:1px solid #dfe4eb; border-radius:10px; text-decoration:none; color:#0c1726; font-weight:700;">🎨 Color Online!</a>
+
+  <script>
+    (function () {
+      const MANDALA_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+        <defs>
+          <filter id="outline">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.5"/>
+          </filter>
+        </defs>
+        <g fill="none" stroke="#1a1a1a" stroke-width="2" filter="url(#outline)">
+          <circle cx="200" cy="200" r="180"/>
+          <circle cx="200" cy="200" r="160"/>
+          <circle cx="200" cy="200" r="140"/>
+          <circle cx="200" cy="200" r="120"/>
+          <circle cx="200" cy="200" r="100"/>
+          <circle cx="200" cy="200" r="80"/>
+          <circle cx="200" cy="200" r="60"/>
+          <circle cx="200" cy="200" r="40"/>
+          
+          <line x1="200" y1="20" x2="200" y2="380"/>
+          <line x1="20" y1="200" x2="380" y2="200"/>
+          <line x1="56.6" y1="56.6" x2="343.4" y2="343.4"/>
+          <line x1="343.4" y1="56.6" x2="56.6" y2="343.4"/>
+          
+          <line x1="80" y1="200" x2="320" y2="200"/>
+          <line x1="200" y1="80" x2="200" y2="320"/>
+          <line x1="141.4" y1="58.6" x2="258.6" y2="341.4"/>
+          <line x1="341.4" y1="141.4" x2="58.6" y2="258.6"/>
+          
+          <path d="M 200 30 L 210 60 L 190 60 Z"/>
+          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(45 200 200)"/>
+          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(90 200 200)"/>
+          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(135 200 200)"/>
+          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(180 200 200)"/>
+          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(225 200 200)"/>
+          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(270 200 200)"/>
+          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(315 200 200)"/>
+          
+          <g id="petal">
+            <circle cx="200" cy="80" r="12"/>
+            <path d="M 200 80 Q 190 70 200 50"/>
+          </g>
+          <use href="#petal" transform="rotate(45 200 200)"/>
+          <use href="#petal" transform="rotate(90 200 200)"/>
+          <use href="#petal" transform="rotate(135 200 200)"/>
+          <use href="#petal" transform="rotate(180 200 200)"/>
+          <use href="#petal" transform="rotate(225 200 200)"/>
+          <use href="#petal" transform="rotate(270 200 200)"/>
+          <use href="#petal" transform="rotate(315 200 200)"/>
+          
+          <circle cx="200" cy="200" r="20" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+        </g>
+      </svg>`;
+
+      const popup = document.createElement('div');
+      popup.className = 'color-online-popup';
+
+      const app = document.createElement('div');
+      app.className = 'color-online-app';
+
+      app.innerHTML = `
+        <div class="color-online-topbar">
+          <div class="color-online-topbar-left">
+            <button class="color-online-btn" data-action="back">↩ Back</button>
+            <button class="color-online-btn" data-action="forward">↪ Forward</button>
+          </div>
+          <div class="color-online-topbar-right">
+            <button class="color-online-btn" data-action="fit">Fit</button>
+            <button class="color-online-btn" data-action="zoom-out">−</button>
+            <button class="color-online-btn" data-action="zoom-in">+</button>
+            <button class="color-online-btn" data-action="reset">Reset Image</button>
+            <button class="color-online-btn primary" data-action="download-png">Download PNG</button>
+            <button class="color-online-btn primary" data-action="download-pdf">Download PDF</button>
+          </div>
+        </div>
+
+        <div class="color-online-main">
+          <div class="color-online-workspace">
+            <button class="color-online-btn color-online-close" data-action="close" aria-label="Close">Close</button>
+            <div class="color-online-canvas-shell">
+              <canvas class="color-online-canvas" id="color-online-canvas"></canvas>
+            </div>
+          </div>
+
+          <aside class="color-online-sidebar">
+            <div class="color-online-side-block">
+              <span class="color-online-label">Tools</span>
+              <div class="color-online-tool-row">
+                <button class="color-online-tool-btn active" data-tool="fill">Fill</button>
+                <button class="color-online-tool-btn" data-tool="brush">Brush</button>
+                <button class="color-online-tool-btn" data-tool="pick">Pick</button>
+              </div>
+              <div class="color-online-size-wrap">
+                <input type="range" min="4" max="46" step="1" value="18" id="color-online-size" />
+                <span class="color-online-size-value" id="color-online-size-value">18</span>
+              </div>
+            </div>
+
+            <div class="color-online-side-block">
+              <span class="color-online-label">Palette</span>
+              <div class="color-online-palette" id="color-online-palette"></div>
+              <div class="color-online-custom-pick">
+                <label for="color-online-custom" class="color-online-label" style="margin:0;">Custom</label>
+                <input id="color-online-custom" type="color" value="#ff4d4d" />
+              </div>
+            </div>
+
+            <div class="color-online-side-block">
+              <span class="color-online-label">Gradient</span>
+              <div class="color-online-gradient-row">
+                <button class="color-online-gradient-btn active" data-gradient="solid">Solid</button>
+                <button class="color-online-gradient-btn" data-gradient="linear">Linear</button>
+                <button class="color-online-gradient-btn" data-gradient="radial">Radial</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      `;
+
+      popup.appendChild(app);
+      document.body.appendChild(popup);
+
+      const state = {
+        imageUrl: '',
+        image: null,
+        isOpen: false,
+        tool: 'fill',
+        gradient: 'solid',
+        activeColor: '#ff4d4d',
+        brushSize: 18,
+        viewportCanvas: document.getElementById('color-online-canvas'),
+        viewportCtx: null,
+        baseCanvas: document.createElement('canvas'),
+        paintCanvas: document.createElement('canvas'),
+        lineMaskCanvas: document.createElement('canvas'),
+        scale: 1,
+        offsetX: 0,
+        offsetY: 0,
+        fitScale: 1,
+        dragMode: false,
+        lastX: 0,
+        lastY: 0,
+        history: [],
+        historyIndex: -1
+      };
+
+      const paletteColors = [
+        '#000000','#ffffff','#d9d9d9','#8d8d8d','#7b4b3a','#d7b899','#e17a4b','#f7d06b','#f2ef8d','#c9d46d','#4f8f5b','#7ccad1','#3e7ad7','#4f5ec7','#9b6bd4','#d84d8d','#f08080','#d7b37f','#8c5938','#b57a46','#4b9b8b','#2a5d96','#7d5e7a','#8a4d2f','#e0a1d7','#ff9f1c','#ffbf69','#ffd79c','#ffe4c3','#dce7a3','#738c5c','#b7d5ff','#e5e7eb','#c0c0c0','#ff3b30'
+      ];
+
+      function initializePalette() {
+        const palette = document.getElementById('color-online-palette');
+        palette.innerHTML = '';
+
+        paletteColors.forEach((color) => {
+          const swatch = document.createElement('button');
+          swatch.type = 'button';
+          swatch.className = 'color-online-swatch';
+          swatch.style.background = color;
+          swatch.title = color;
+          swatch.dataset.color = color;
+          swatch.addEventListener('click', () => {
+            state.activeColor = color;
+            document.getElementById('color-online-custom').value = color;
+            selectSwatch(color);
+          });
+          palette.appendChild(swatch);
+        });
+
+        selectSwatch(state.activeColor);
+      }
+
+      function selectSwatch(color) {
+        const swatches = document.querySelectorAll('.color-online-swatch');
+        swatches.forEach((node) => {
+          node.classList.toggle('active', node.dataset.color.toLowerCase() === color.toLowerCase());
+        });
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+
+      function updateSizeLabel() {
+        const el = document.getElementById('color-online-size-value');
+        if (el) el.textContent = String(state.brushSize);
+      }
+
+      function setTool(tool) {
+        state.tool = tool;
+        document.querySelectorAll('.color-online-tool-btn').forEach((node) => {
+          node.classList.toggle('active', node.dataset.tool === tool);
+        });
+      }
+
+      function setGradient(gradient) {
+        state.gradient = gradient;
+        document.querySelectorAll('.color-online-gradient-btn').forEach((node) => {
+          node.classList.toggle('active', node.dataset.gradient === gradient);
+        });
+      }
+
+      function toHex(n) {
+        return n.toString(16).padStart(2, '0');
+      }
+
+      function rgbaFromHex(hex) {
+        const clean = hex.replace('#', '');
+        const full = clean.length === 3
+          ? clean.split('').map((c) => c + c).join('')
+          : clean;
+        const num = parseInt(full, 16);
+        return {
+          r: (num >> 16) & 255,
+          g: (num >> 8) & 255,
+          b: num & 255,
+          a: 255
+        };
+      }
+
+      function colorToCss(rgb) {
+        return 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',255)';
+      }
+
+      function hexToRgb(hex) {
+        const { r, g, b } = rgbaFromHex(hex);
+        return { r, g, b };
+      }
+
+      function rgbDistance(a, b) {
+        return Math.sqrt(
+          (a.r - b.r) * (a.r - b.r) +
+          (a.g - b.g) * (a.g - b.g) +
+          (a.b - b.b) * (a.b - b.b)
+        );
+      }
+
+      function getImageData(canvas, x, y) {
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const imageData = ctx.getImageData(x, y, 1, 1);
+        return imageData.data;
+      }
+
+      function pixelInBounds(x, y, width, height) {
+        return x >= 0 && x < width && y >= 0 && y < height;
+      }
+
+      function buildLineMask() {
+        const img = state.image;
+        if (!img) return;
+
+        const baseCtx = state.baseCanvas.getContext('2d');
+        const lineCtx = state.lineMaskCanvas.getContext('2d');
+
+        const width = img.naturalWidth || img.width;
+        const height = img.naturalHeight || img.height;
+
+        state.baseCanvas.width = width;
+        state.baseCanvas.height = height;
+        state.lineMaskCanvas.width = width;
+        state.lineMaskCanvas.height = height;
+        state.paintCanvas.width = width;
+        state.paintCanvas.height = height;
+
+        baseCtx.clearRect(0, 0, width, height);
+        lineCtx.clearRect(0, 0, width, height);
+
+        baseCtx.drawImage(img, 0, 0, width, height);
+
+        const baseImage = baseCtx.getImageData(0, 0, width, height);
+        const lineImage = lineCtx.createImageData(width, height);
+
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+            const r = baseImage.data[idx];
+            const g = baseImage.data[idx + 1];
+            const b = baseImage.data[idx + 2];
+            const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+
+            const isLine = brightness < 210 || (Math.abs(r - g) < 18 && Math.abs(g - b) < 18 && brightness < 245);
+            const alpha = isLine ? 255 : 0;
+
+            lineImage.data[idx] = 255;
+            lineImage.data[idx + 1] = 255;
+            lineImage.data[idx + 2] = 255;
+            lineImage.data[idx + 3] = alpha;
+          }
+        }
+
+        lineCtx.putImageData(lineImage, 0, 0);
+
+        const paintCtx = state.paintCanvas.getContext('2d');
+        paintCtx.clearRect(0, 0, width, height);
+        paintCtx.fillStyle = 'rgba(0,0,0,0)';
+        paintCtx.fillRect(0, 0, width, height);
+      }
+
+      function saveHistory() {
+        const snapshot = state.paintCanvas.toDataURL('image/png');
+        if (state.history[state.historyIndex] === snapshot) return;
+        state.history = state.history.slice(0, state.historyIndex + 1);
+        state.history.push(snapshot);
+        state.historyIndex = state.history.length - 1;
+        if (state.history.length > 20) {
+          state.history.shift();
+          state.historyIndex = state.history.length - 1;
+        }
+      }
+
+      function restoreHistory(index) {
+        const snapshot = state.history[index];
+        if (!snapshot) return;
+        const img = new Image();
+        img.onload = () => {
+          const ctx = state.paintCanvas.getContext('2d');
+          ctx.clearRect(0, 0, state.paintCanvas.width, state.paintCanvas.height);
+          ctx.drawImage(img, 0, 0);
+          render();
+        };
+        img.src = snapshot;
+      }
+
+      function render() {
+        const canvas = state.viewportCanvas;
+        const ctx = state.viewportCtx;
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        const base = state.baseCanvas;
+        const paint = state.paintCanvas;
+
+        ctx.fillStyle = '#f4f7fb';
+        ctx.fillRect(0, 0, width, height);
+
+        if (!state.image) {
+          return;
+        }
+
+        const imgW = state.image.naturalWidth || state.image.width;
+        const imgH = state.image.naturalHeight || state.image.height;
+
+        ctx.save();
+        ctx.translate(state.offsetX, state.offsetY);
+        ctx.scale(state.scale, state.scale);
+
+        ctx.drawImage(base, 0, 0, imgW, imgH);
+        ctx.drawImage(paint, 0, 0, imgW, imgH);
+
+        ctx.restore();
+      }
+
+      function fitImageToCanvas() {
+        if (!state.image) return;
+
+        const baseW = state.image.naturalWidth || state.image.width;
+        const baseH = state.image.naturalHeight || state.image.height;
+        const canvasW = state.viewportCanvas.clientWidth;
+        const canvasH = state.viewportCanvas.clientHeight;
+
+        const ratio = Math.min(canvasW / baseW, canvasH / baseH);
+        state.scale = ratio;
+        state.offsetX = (canvasW - baseW * state.scale) / 2;
+        state.offsetY = (canvasH - baseH * state.scale) / 2;
+        state.fitScale = state.scale;
+      }
+
+      function zoomAtPoint(clientX, clientY, delta) {
+        const rect = state.viewportCanvas.getBoundingClientRect();
+        const canvasX = clientX - rect.left;
+        const canvasY = clientY - rect.top;
+
+        const beforeX = (canvasX - state.offsetX) / state.scale;
+        const beforeY = (canvasY - state.offsetY) / state.scale;
+
+        const nextScale = clamp(state.scale * delta, 0.35, 8);
+
+        state.scale = nextScale;
+        state.offsetX = canvasX - beforeX * state.scale;
+        state.offsetY = canvasY - beforeY * state.scale;
+      }
+
+      function worldFromScreen(screenX, screenY) {
+        const rect = state.viewportCanvas.getBoundingClientRect();
+        const localX = screenX - rect.left;
+        const localY = screenY - rect.top;
+
+        const imgW = state.image ? (state.image.naturalWidth || state.image.width) : 0;
+        const imgH = state.image ? (state.image.naturalHeight || state.image.height) : 0;
+
+        const x = (localX - state.offsetX) / state.scale;
+        const y = (localY - state.offsetY) / state.scale;
+
+        return {
+          x: clamp(Math.round(x), 0, imgW - 1),
+          y: clamp(Math.round(y), 0, imgH - 1)
+        };
+      }
+
+      function paintAt(pointX, pointY, color, radius) {
+        if (!state.image || !state.paintCanvas.width) return;
+
+        const paintCtx = state.paintCanvas.getContext('2d');
+        const img = paintCtx.getImageData(0, 0, state.paintCanvas.width, state.paintCanvas.height);
+        const data = img.data;
+        const w = state.paintCanvas.width;
+        const h = state.paintCanvas.height;
+
+        const rgbColor = hexToRgb(color);
+
+        for (let y = Math.max(0, pointY - radius); y < Math.min(h, pointY + radius + 1); y++) {
+          for (let x = Math.max(0, pointX - radius); x < Math.min(w, pointX + radius + 1); x++) {
+            const dx = x - pointX;
+            const dy = y - pointY;
+            if (dx * dx + dy * dy > radius * radius) continue;
+
+            if (!pixelInBounds(x, y, w, h)) continue;
+
+            const maskData = state.lineMaskCanvas.getContext('2d').getImageData(x, y, 1, 1).data;
+            if (maskData[3] > 0) continue;
+
+            const idx = (y * w + x) * 4;
+            data[idx] = rgbColor.r;
+            data[idx + 1] = rgbColor.g;
+            data[idx + 2] = rgbColor.b;
+            data[idx + 3] = 255;
+          }
+        }
+
+        paintCtx.putImageData(img, 0, 0);
+      }
+
+      function floodFillAt(pointX, pointY, newColor) {
+        if (!state.image) return;
+        const w = state.paintCanvas.width;
+        const h = state.paintCanvas.height;
+        if (!pixelInBounds(pointX, pointY, w, h)) return;
+
+        const paintCtx = state.paintCanvas.getContext('2d');
+        const img = paintCtx.getImageData(0, 0, w, h);
+        const lineMask = state.lineMaskCanvas.getContext('2d').getImageData(0, 0, w, h);
+        const targetIndex = (pointY * w + pointX) * 4;
+        const targetR = img.data[targetIndex];
+        const targetG = img.data[targetIndex + 1];
+        const targetB = img.data[targetIndex + 2];
+        const newRgb = hexToRgb(newColor);
+
+        if (lineMask.data[targetIndex + 3] > 0) return;
+
+        const start = { x: pointX, y: pointY };
+        const stack = [start];
+        const visited = new Uint8Array(w * h);
+
+        while (stack.length) {
+          const current = stack.pop();
+          const index = current.y * w + current.x;
+
+          if (visited[index]) continue;
+          visited[index] = 1;
+
+          const pos = index * 4;
+          if (lineMask.data[pos + 3] > 0) continue;
+
+          const r = img.data[pos];
+          const g = img.data[pos + 1];
+          const b = img.data[pos + 2];
+
+          const toFill = Math.sqrt((r - targetR) ** 2 + (g - targetG) ** 2 + (b - targetB) ** 2) <= 90;
+          if (!toFill) continue;
+
+          img.data[pos] = newRgb.r;
+          img.data[pos + 1] = newRgb.g;
+          img.data[pos + 2] = newRgb.b;
+          img.data[pos + 3] = 255;
+
+          const neighbors = [
+            [current.x + 1, current.y],
+            [current.x - 1, current.y],
+            [current.x, current.y + 1],
+            [current.x, current.y - 1]
+          ];
+
+          for (const [nx, ny] of neighbors) {
+            if (!pixelInBounds(nx, ny, w, h)) continue;
+            const nIndex = ny * w + nx;
+            const nPos = nIndex * 4;
+
+            if (visited[nIndex]) continue;
+            if (lineMask.data[nPos + 3] > 0) continue;
+
+            stack.push({ x: nx, y: ny });
+          }
+        }
+
+        paintCtx.putImageData(img, 0, 0);
+      }
+
+      function sampleColorAtScreen(clientX, clientY) {
+        const point = worldFromScreen(clientX, clientY);
+        const paintCtx = state.paintCanvas.getContext('2d', { willReadFrequently: true });
+        const colorData = paintCtx.getImageData(point.x, point.y, 1, 1).data;
+        if (colorData[3] > 0) {
+          state.activeColor = `#${toHex(colorData[0])}${toHex(colorData[1])}${toHex(colorData[2])}`;
+          document.getElementById('color-online-custom').value = state.activeColor;
+          selectSwatch(state.activeColor);
+        }
+      }
+
+      function handlePointerDown(event) {
+        const point = worldFromScreen(event.clientX, event.clientY);
+        if (!state.image) return;
+
+        if (state.tool === 'pick') {
+          sampleColorAtScreen(event.clientX, event.clientY);
+          return;
+        }
+
+        state.dragMode = true;
+        state.lastX = point.x;
+        state.lastY = point.y;
+
+        if (state.tool === 'fill') {
+          floodFillAt(point.x, point.y, state.activeColor);
+          saveHistory();
+          render();
+        } else if (state.tool === 'brush') {
+          paintAt(point.x, point.y, state.activeColor, state.brushSize / 2);
+          saveHistory();
+          render();
+        }
+      }
+
+      function handlePointerMove(event) {
+        if (!state.dragMode || !state.image) return;
+
+        const point = worldFromScreen(event.clientX, event.clientY);
+
+        if (state.tool === 'brush') {
+          const dist = Math.hypot(point.x - state.lastX, point.y - state.lastY);
+          if (dist < 1) return;
+
+          const steps = Math.ceil(dist);
+          for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const x = Math.round(state.lastX + (point.x - state.lastX) * t);
+            const y = Math.round(state.lastY + (point.y - state.lastY) * t);
+            paintAt(x, y, state.activeColor, state.brushSize / 2);
+          }
+
+          state.lastX = point.x;
+          state.lastY = point.y;
+
+          saveHistory();
+          render();
+        }
+      }
+
+      function handlePointerUp() {
+        state.dragMode = false;
+      }
+
+      function handleCanvasWheel(event) {
+        if (!state.image) return;
+        event.preventDefault();
+        const delta = event.deltaY < 0 ? 1.12 : 0.88;
+        zoomAtPoint(event.clientX, event.clientY, delta);
+        render();
+      }
+
+      function setImageFromUrl(url) {
+        if (!url) return;
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          state.image = img;
+          state.imageUrl = url;
+
+          const width = img.naturalWidth || img.width;
+          const height = img.naturalHeight || img.height;
+
+          state.baseCanvas.width = width;
+          state.baseCanvas.height = height;
+          const baseCtx = state.baseCanvas.getContext('2d');
+          baseCtx.clearRect(0, 0, width, height);
+          baseCtx.drawImage(img, 0, 0, width, height);
+
+          state.lineMaskCanvas.width = width;
+          state.lineMaskCanvas.height = height;
+          buildLineMask();
+
+          state.paintCanvas.width = width;
+          state.paintCanvas.height = height;
+          const paintCtx = state.paintCanvas.getContext('2d');
+          paintCtx.clearRect(0, 0, width, height);
+
+          state.history = [];
+          state.historyIndex = -1;
+          saveHistory();
+
+          fitImageToCanvas();
+          render();
+        };
+        img.onerror = () => {
+          console.error('Failed to load image:', url);
+        };
+        img.src = url;
+      }
+
+      function setImageFromSVG(svgString) {
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.onload = () => {
+          state.image = img;
+          state.imageUrl = 'mandala-default';
+
+          const width = img.naturalWidth || img.width;
+          const height = img.naturalHeight || img.height;
+
+          state.baseCanvas.width = width;
+          state.baseCanvas.height = height;
+          const baseCtx = state.baseCanvas.getContext('2d');
+          baseCtx.clearRect(0, 0, width, height);
+          baseCtx.drawImage(img, 0, 0, width, height);
+
+          state.lineMaskCanvas.width = width;
+          state.lineMaskCanvas.height = height;
+          buildLineMask();
+
+          state.paintCanvas.width = width;
+          state.paintCanvas.height = height;
+          const paintCtx = state.paintCanvas.getContext('2d');
+          paintCtx.clearRect(0, 0, width, height);
+
+          state.history = [];
+          state.historyIndex = -1;
+          saveHistory();
+
+          fitImageToCanvas();
+          render();
+
+          URL.revokeObjectURL(url);
+        };
+        img.src = url;
+      }
+
+      function resetImage() {
+        if (!state.image) return;
+        const paintCtx = state.paintCanvas.getContext('2d');
+        paintCtx.clearRect(0, 0, state.paintCanvas.width, state.paintCanvas.height);
+        saveHistory();
+        render();
+      }
+
+      function downloadPNG() {
+        if (!state.image) return;
+
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = state.paintCanvas.width;
+        exportCanvas.height = state.paintCanvas.height;
+
+        const ectx = exportCanvas.getContext('2d');
+        ectx.drawImage(state.baseCanvas, 0, 0);
+        ectx.drawImage(state.paintCanvas, 0, 0);
+
+        const dataUrl = exportCanvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = 'color-online-image.png';
+        a.click();
+      }
+
+      function downloadPDF() {
+        if (!state.image) return;
+
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = state.paintCanvas.width;
+        exportCanvas.height = state.paintCanvas.height;
+
+        const ectx = exportCanvas.getContext('2d');
+        ectx.drawImage(state.baseCanvas, 0, 0);
+        ectx.drawImage(state.paintCanvas, 0, 0);
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+          alert('Pop-up blocked. Please allow pop-ups and try again.');
+          return;
+        }
+
+        const imgData = exportCanvas.toDataURL('image/png');
+        printWindow.document.write(\`
+          <html>
+            <head>
+              <title>Color Online PDF</title>
+              <style>
+                html, body { margin:0; background:#fff; }
+                body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+                img { max-width:100%; max-height:100vh; display:block; box-shadow:0 8px 24px rgba(0,0,0,0.08); }
+              </style>
+            </head>
+            <body>
+              <img src="\${imgData}" />
+            </body>
+          </html>
+        \`);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+      }
+
+      function togglePopup(show) {
+        popup.classList.toggle('visible', show);
+      }
+
+      function openColorPopup(url) {
+        togglePopup(true);
+        if (url && url.trim()) {
+          setImageFromUrl(url);
+        } else {
+          setImageFromSVG(MANDALA_SVG);
+        }
+      }
+
+      function bindControls() {
+        document
+          .querySelector('[data-action="close"]')
+          .addEventListener('click', () => togglePopup(false));
+
+        document.querySelector('[data-action="fit"]').addEventListener('click', () => {
+          fitImageToCanvas();
+          render();
+        });
+
+        document.querySelector('[data-action="zoom-in"]').addEventListener('click', () => {
+          const centerX = state.viewportCanvas.clientWidth / 2;
+          const centerY = state.viewportCanvas.clientHeight / 2;
+          zoomAtPoint(centerX + state.viewportCanvas.getBoundingClientRect().left, centerY + state.viewportCanvas.getBoundingClientRect().top, 1.15);
+          render();
+        });
+
+        document.querySelector('[data-action="zoom-out"]').addEventListener('click', () => {
+          const centerX = state.viewportCanvas.clientWidth / 2;
+          const centerY = state.viewportCanvas.clientHeight / 2;
+          zoomAtPoint(centerX + state.viewportCanvas.getBoundingClientRect().left, centerY + state.viewportCanvas.getBoundingClientRect().top, 0.88);
+          render();
+        });
+
+        document.querySelector('[data-action="reset"]').addEventListener('click', resetImage);
+        document.querySelector('[data-action="download-png"]').addEventListener('click', downloadPNG);
+        document.querySelector('[data-action="download-pdf"]').addEventListener('click', downloadPDF);
+
+        document.querySelector('[data-action="back"]').addEventListener('click', () => {
+          if (state.historyIndex > 0) {
+            state.historyIndex -= 1;
+            restoreHistory(state.historyIndex);
+          }
+        });
+
+        document.querySelector('[data-action="forward"]').addEventListener('click', () => {
+          if (state.historyIndex < state.history.length - 1) {
+            state.historyIndex += 1;
+            restoreHistory(state.historyIndex);
+          }
+        });
+
+        document.getElementById('color-online-custom').addEventListener('input', (event) => {
+          const value = event.target.value;
+          state.activeColor = value;
+          selectSwatch(value);
+        });
+
+        document.getElementById('color-online-size').addEventListener('input', (event) => {
+          state.brushSize = Number(event.target.value);
+          updateSizeLabel();
+        });
+
+        document.querySelectorAll('.color-online-tool-btn').forEach((button) => {
+          button.addEventListener('click', () => setTool(button.dataset.tool));
+        });
+
+        document.querySelectorAll('.color-online-gradient-btn').forEach((button) => {
+          button.addEventListener('click', () => setGradient(button.dataset.gradient));
+        });
+
+        state.viewportCanvas.addEventListener('pointerdown', handlePointerDown);
+        state.viewportCanvas.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerup', handlePointerUp);
+        state.viewportCanvas.addEventListener('wheel', handleCanvasWheel, { passive: false });
+      }
+
+      function init() {
+        state.viewportCtx = state.viewportCanvas.getContext('2d');
+        initializePalette();
+        updateSizeLabel();
+        bindControls();
+
+        const trigger = document.getElementById('coloronline');
+        if (trigger) {
+          trigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            const url = trigger.getAttribute('href') || trigger.dataset.image || '';
+            openColorPopup(url);
+          });
+        }
+
+        popup.addEventListener('click', (event) => {
+          if (event.target === popup) togglePopup(false);
+        });
+
+        window.addEventListener('resize', () => {
+          if (state.image && state.isOpen) {
+            fitImageToCanvas();
+            render();
+          }
+        });
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
