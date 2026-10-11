@@ -141,6 +141,10 @@
       display: block;
     }
 
+    .color-online-canvas.pan-mode {
+      cursor: grab;
+    }
+
     .color-online-sidebar {
       background: rgba(255, 255, 255, 0.86);
       padding: 18px 14px 16px;
@@ -349,11 +353,11 @@
       const MANDALA_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
         <defs>
           <filter id="outline">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.5"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.4"/>
           </filter>
         </defs>
-        <g fill="none" stroke="#1a1a1a" stroke-width="2" filter="url(#outline)">
-          <circle cx="200" cy="200" r="180"/>
+        <g fill="none" stroke="#1a1a1a" stroke-width="2.1" filter="url(#outline)">
+          <circle cx="200" cy="200" r="182"/>
           <circle cx="200" cy="200" r="160"/>
           <circle cx="200" cy="200" r="140"/>
           <circle cx="200" cy="200" r="120"/>
@@ -361,39 +365,38 @@
           <circle cx="200" cy="200" r="80"/>
           <circle cx="200" cy="200" r="60"/>
           <circle cx="200" cy="200" r="40"/>
-          
+
           <line x1="200" y1="20" x2="200" y2="380"/>
           <line x1="20" y1="200" x2="380" y2="200"/>
           <line x1="56.6" y1="56.6" x2="343.4" y2="343.4"/>
           <line x1="343.4" y1="56.6" x2="56.6" y2="343.4"/>
-          
-          <line x1="80" y1="200" x2="320" y2="200"/>
-          <line x1="200" y1="80" x2="200" y2="320"/>
-          <line x1="141.4" y1="58.6" x2="258.6" y2="341.4"/>
-          <line x1="341.4" y1="141.4" x2="58.6" y2="258.6"/>
-          
-          <path d="M 200 30 L 210 60 L 190 60 Z"/>
-          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(45 200 200)"/>
-          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(90 200 200)"/>
-          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(135 200 200)"/>
-          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(180 200 200)"/>
-          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(225 200 200)"/>
-          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(270 200 200)"/>
-          <path d="M 200 30 L 210 60 L 190 60 Z" transform="rotate(315 200 200)"/>
-          
-          <g id="petal">
-            <circle cx="200" cy="80" r="12"/>
-            <path d="M 200 80 Q 190 70 200 50"/>
+
+          <g>
+            <path d="M 200 40 L 208 72 L 192 72 Z"/>
+            <path d="M 200 40 L 208 72 L 192 72 Z" transform="rotate(45 200 200)"/>
+            <path d="M 200 40 L 208 72 L 192 72 Z" transform="rotate(90 200 200)"/>
+            <path d="M 200 40 L 208 72 L 192 72 Z" transform="rotate(135 200 200)"/>
+            <path d="M 200 40 L 208 72 L 192 72 Z" transform="rotate(180 200 200)"/>
+            <path d="M 200 40 L 208 72 L 192 72 Z" transform="rotate(225 200 200)"/>
+            <path d="M 200 40 L 208 72 L 192 72 Z" transform="rotate(270 200 200)"/>
+            <path d="M 200 40 L 208 72 L 192 72 Z" transform="rotate(315 200 200)"/>
           </g>
-          <use href="#petal" transform="rotate(45 200 200)"/>
-          <use href="#petal" transform="rotate(90 200 200)"/>
-          <use href="#petal" transform="rotate(135 200 200)"/>
-          <use href="#petal" transform="rotate(180 200 200)"/>
-          <use href="#petal" transform="rotate(225 200 200)"/>
-          <use href="#petal" transform="rotate(270 200 200)"/>
-          <use href="#petal" transform="rotate(315 200 200)"/>
-          
-          <circle cx="200" cy="200" r="20" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+
+          <g>
+            <path d="M 200 90 Q 230 120 200 150 Q 170 120 200 90"/>
+            <path d="M 200 90 Q 230 120 200 150 Q 170 120 200 90" transform="rotate(45 200 200)"/>
+            <path d="M 200 90 Q 230 120 200 150 Q 170 120 200 90" transform="rotate(90 200 200)"/>
+            <path d="M 200 90 Q 230 120 200 150 Q 170 120 200 90" transform="rotate(135 200 200)"/>
+            <path d="M 200 90 Q 230 120 200 150 Q 170 120 200 90" transform="rotate(180 200 200)"/>
+            <path d="M 200 90 Q 230 120 200 150 Q 170 120 200 90" transform="rotate(225 200 200)"/>
+            <path d="M 200 90 Q 230 120 200 150 Q 170 120 200 90" transform="rotate(270 200 200)"/>
+            <path d="M 200 90 Q 230 120 200 150 Q 170 120 200 90" transform="rotate(315 200 200)"/>
+          </g>
+
+          <g>
+            <circle cx="200" cy="200" r="20" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="200" cy="200" r="7"/>
+          </g>
         </g>
       </svg>`;
 
@@ -483,6 +486,7 @@
         offsetY: 0,
         fitScale: 1,
         dragMode: false,
+        panMode: false,
         lastX: 0,
         lastY: 0,
         history: [],
@@ -563,27 +567,9 @@
         };
       }
 
-      function colorToCss(rgb) {
-        return 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',255)';
-      }
-
       function hexToRgb(hex) {
         const { r, g, b } = rgbaFromHex(hex);
         return { r, g, b };
-      }
-
-      function rgbDistance(a, b) {
-        return Math.sqrt(
-          (a.r - b.r) * (a.r - b.r) +
-          (a.g - b.g) * (a.g - b.g) +
-          (a.b - b.b) * (a.b - b.b)
-        );
-      }
-
-      function getImageData(canvas, x, y) {
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const imageData = ctx.getImageData(x, y, 1, 1);
-        return imageData.data;
       }
 
       function pixelInBounds(x, y, width, height) {
@@ -609,7 +595,6 @@
 
         baseCtx.clearRect(0, 0, width, height);
         lineCtx.clearRect(0, 0, width, height);
-
         baseCtx.drawImage(img, 0, 0, width, height);
 
         const baseImage = baseCtx.getImageData(0, 0, width, height);
@@ -622,7 +607,6 @@
             const g = baseImage.data[idx + 1];
             const b = baseImage.data[idx + 2];
             const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
-
             const isLine = brightness < 210 || (Math.abs(r - g) < 18 && Math.abs(g - b) < 18 && brightness < 245);
             const alpha = isLine ? 255 : 0;
 
@@ -666,23 +650,31 @@
         img.src = snapshot;
       }
 
+      function resizeCanvas() {
+        if (!state.viewportCanvas) return;
+        const rect = state.viewportCanvas.getBoundingClientRect();
+        const width = Math.max(1, Math.round(rect.width));
+        const height = Math.max(1, Math.round(rect.height));
+
+        state.viewportCanvas.width = width;
+        state.viewportCanvas.height = height;
+
+        if (state.image) {
+          fitImageToCanvas();
+          render();
+        }
+      }
+
       function render() {
         const canvas = state.viewportCanvas;
         const ctx = state.viewportCtx;
-        const width = canvas.width;
-        const height = canvas.height;
+        if (!canvas || !ctx) return;
 
-        ctx.clearRect(0, 0, width, height);
-
-        const base = state.baseCanvas;
-        const paint = state.paintCanvas;
-
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#f4f7fb';
-        ctx.fillRect(0, 0, width, height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        if (!state.image) {
-          return;
-        }
+        if (!state.image) return;
 
         const imgW = state.image.naturalWidth || state.image.width;
         const imgH = state.image.naturalHeight || state.image.height;
@@ -691,8 +683,8 @@
         ctx.translate(state.offsetX, state.offsetY);
         ctx.scale(state.scale, state.scale);
 
-        ctx.drawImage(base, 0, 0, imgW, imgH);
-        ctx.drawImage(paint, 0, 0, imgW, imgH);
+        ctx.drawImage(state.baseCanvas, 0, 0, imgW, imgH);
+        ctx.drawImage(state.paintCanvas, 0, 0, imgW, imgH);
 
         ctx.restore();
       }
@@ -752,7 +744,6 @@
         const data = img.data;
         const w = state.paintCanvas.width;
         const h = state.paintCanvas.height;
-
         const rgbColor = hexToRgb(color);
 
         for (let y = Math.max(0, pointY - radius); y < Math.min(h, pointY + radius + 1); y++) {
@@ -760,7 +751,6 @@
             const dx = x - pointX;
             const dy = y - pointY;
             if (dx * dx + dy * dy > radius * radius) continue;
-
             if (!pixelInBounds(x, y, w, h)) continue;
 
             const maskData = state.lineMaskCanvas.getContext('2d').getImageData(x, y, 1, 1).data;
@@ -854,6 +844,17 @@
       }
 
       function handlePointerDown(event) {
+        const isPanGesture = event.button === 1 || event.button === 2 || event.shiftKey || event.metaKey || event.ctrlKey;
+
+        if (isPanGesture) {
+          state.dragMode = true;
+          state.panMode = true;
+          state.lastX = event.clientX;
+          state.lastY = event.clientY;
+          state.viewportCanvas.classList.add('pan-mode');
+          return;
+        }
+
         const point = worldFromScreen(event.clientX, event.clientY);
         if (!state.image) return;
 
@@ -863,6 +864,7 @@
         }
 
         state.dragMode = true;
+        state.panMode = false;
         state.lastX = point.x;
         state.lastY = point.y;
 
@@ -879,6 +881,17 @@
 
       function handlePointerMove(event) {
         if (!state.dragMode || !state.image) return;
+
+        if (state.panMode) {
+          const dx = event.clientX - state.lastX;
+          const dy = event.clientY - state.lastY;
+          state.offsetX += dx;
+          state.offsetY += dy;
+          state.lastX = event.clientX;
+          state.lastY = event.clientY;
+          render();
+          return;
+        }
 
         const point = worldFromScreen(event.clientX, event.clientY);
 
@@ -904,6 +917,8 @@
 
       function handlePointerUp() {
         state.dragMode = false;
+        state.panMode = false;
+        state.viewportCanvas.classList.remove('pan-mode');
       }
 
       function handleCanvasWheel(event) {
@@ -915,7 +930,10 @@
       }
 
       function setImageFromUrl(url) {
-        if (!url) return;
+        if (!url || !url.trim()) {
+          setImageFromSVG(MANDALA_SVG);
+          return;
+        }
 
         const img = new Image();
         img.crossOrigin = 'anonymous';
@@ -949,7 +967,7 @@
           render();
         };
         img.onerror = () => {
-          console.error('Failed to load image:', url);
+          setImageFromSVG(MANDALA_SVG);
         };
         img.src = url;
       }
@@ -1037,7 +1055,7 @@
         }
 
         const imgData = exportCanvas.toDataURL('image/png');
-        printWindow.document.write(\`
+        printWindow.document.write(`
           <html>
             <head>
               <title>Color Online PDF</title>
@@ -1048,16 +1066,17 @@
               </style>
             </head>
             <body>
-              <img src="\${imgData}" />
+              <img src="${imgData}" />
             </body>
           </html>
-        \`);
+        `);
         printWindow.document.close();
         printWindow.focus();
         printWindow.print();
       }
 
       function togglePopup(show) {
+        state.isOpen = show;
         popup.classList.toggle('visible', show);
       }
 
@@ -1071,9 +1090,7 @@
       }
 
       function bindControls() {
-        document
-          .querySelector('[data-action="close"]')
-          .addEventListener('click', () => togglePopup(false));
+        document.querySelector('[data-action="close"]').addEventListener('click', () => togglePopup(false));
 
         document.querySelector('[data-action="fit"]').addEventListener('click', () => {
           fitImageToCanvas();
@@ -1142,6 +1159,7 @@
         initializePalette();
         updateSizeLabel();
         bindControls();
+        resizeCanvas();
 
         const trigger = document.getElementById('coloronline');
         if (trigger) {
@@ -1156,12 +1174,7 @@
           if (event.target === popup) togglePopup(false);
         });
 
-        window.addEventListener('resize', () => {
-          if (state.image && state.isOpen) {
-            fitImageToCanvas();
-            render();
-          }
-        });
+        window.addEventListener('resize', resizeCanvas);
       }
 
       init();
